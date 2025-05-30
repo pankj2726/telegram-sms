@@ -10,9 +10,7 @@ import android.util.Log
 import com.qwe7002.telegram_sms.static_class.service
 import java.util.concurrent.TimeUnit
 
-
 class KeepAliveJob : JobService() {
-
     override fun onStartJob(params: JobParameters?): Boolean {
         val sharedPreferences = applicationContext.getSharedPreferences("data", MODE_PRIVATE)
         if (sharedPreferences.getBoolean("initialized", false)) {
@@ -27,29 +25,34 @@ class KeepAliveJob : JobService() {
         startJob(applicationContext)
         return true
     }
-
+    
     override fun onStopJob(params: JobParameters?): Boolean {
         return false
     }
-
+    
     companion object {
         fun startJob(context: Context) {
             val jobScheduler =
                 context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-
             val jobInfoBuilder = JobInfo.Builder(
                 10,
                 ComponentName(context.packageName, KeepAliveJob::class.java.getName())
             )
                 .setPersisted(true)
-            jobInfoBuilder.setMinimumLatency(TimeUnit.SECONDS.toMillis(5))
-            jobInfoBuilder.setOverrideDeadline(JobInfo.DEFAULT_INITIAL_BACKOFF_MILLIS)
+            
+            // Reduce interval for more frequent checks
+            jobInfoBuilder.setMinimumLatency(TimeUnit.SECONDS.toMillis(30))
+            jobInfoBuilder.setOverrideDeadline(TimeUnit.MINUTES.toMillis(1))
+            
+            // Request network connectivity to improve persistence
+            jobInfoBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            
             jobScheduler.schedule(jobInfoBuilder.build())
         }
+        
         fun stopJob(context: Context) {
             val jobScheduler =
                 context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-
             jobScheduler.cancel(10)
         }
     }
