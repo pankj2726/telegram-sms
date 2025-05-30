@@ -48,11 +48,9 @@ class ReSendJob : JobService() {
         }.start()
         return true
     }
-
     override fun onStopJob(params: JobParameters?): Boolean {
         return false
     }
-
     private fun networkProgressHandle(
         message: String,
         chatId: String,
@@ -86,7 +84,6 @@ class ReSendJob : JobService() {
         fun startJob(context: Context) {
             val jobScheduler =
                 context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-
             val jobInfoBuilder = JobInfo.Builder(
                 20,
                 ComponentName(context.packageName, KeepAliveJob::class.java.getName())
@@ -95,13 +92,10 @@ class ReSendJob : JobService() {
             jobInfoBuilder.setPeriodic(TimeUnit.MINUTES.toMillis(15))
             jobInfoBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             jobScheduler.schedule(jobInfoBuilder.build())
-
         }
-
         fun stopJob(context: Context) {
             val jobScheduler =
                 context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-
             jobScheduler.cancel(10)
         }
     }
